@@ -76,12 +76,14 @@ ORDER BY
     nama_pelanggan;
 
 -- Mengurutkan Nama Pelanggan Tanpa Gelar
-SELECT
-    nama_pelanggan
-FROM
-    ms_pelanggan
-ORDER BY
-    SUBSTRING_INDEX(nama_pelanggan, ", ", -1);
+select
+	nama_pelanggan
+from
+	ms_pelanggan
+order by
+	case when left(nama_pelanggan,3) = 'Ir.' 
+	then substring(nama_pelanggan,5,100)
+	else nama_pelanggan end asc;
 
 -- Nama Pelanggan yang Paling Panjang
 SELECT
@@ -120,18 +122,26 @@ ORDER BY
     LENGTH(nama_pelanggan) DESC;
 
 -- Kuantitas Produk yang Banyak Terjual
-SELECT
-    ms_produk.kode_produk,
-    ms_produk.nama_produk,
-    SUM(tr_penjualan_detail.qty) AS total_qty
-FROM
-    ms_produk
-    INNER JOIN tr_penjualan_detail ON ms_produk.kode_produk = tr_penjualan_detail.kode_produk
+use dqlab;
+select
+	pen.kode_produk,
+	pro.nama_produk,
+	pen.total_qty
+from
+	ms_produk
+inner join
+	(SELECT 
+	 	kode_produk,
+	 	qty
+	 FROM 
+	 	tr_penjualan_detail
+	 GROUP BY
+	 	kode_produk) pen
+on
+	pen.kode_produk = pro.kode_produk
 GROUP BY
-    ms_produk.kode_produk,
-    ms_produk.nama_produk
-HAVING
-    SUM(tr_penjualan_detail.qty) > 2;
+	pen.kode_produk,
+	pro.nama_produk;
 
 -- Pelanggan Paling Tinggi Nilai Belanjanya
 SELECT
@@ -186,3 +196,4 @@ GROUP BY
 HAVING
     jumlah_detail > 1;
     
+select  pen.kode_produk,  pro.nama_produk,  pen.total_qty from  ms_produk inner join  (SELECT     kode_produk,    MAX(COUNT(qty)) total_qty   FROM     tr_penjualan_detail   GROUP BY    kode_produk) pen GROUP BY  pen.kode_produk,  pro.nama_produk LIMIT 0, 1000
