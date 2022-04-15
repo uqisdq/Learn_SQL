@@ -132,7 +132,7 @@ from
 inner join
 	(SELECT 
 	 	kode_produk,
-	 	qty
+	 	sum(qty) as total_qty
 	 FROM 
 	 	tr_penjualan_detail
 	 GROUP BY
